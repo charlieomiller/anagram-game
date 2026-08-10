@@ -19,6 +19,18 @@ export function generateInitialMeld(): string[] {
 // also seeded, we'll eventually want the passive generation on a timer. it should have a few rules
 // if a letter has been flipped it should be weighted less. just not totally random i juess
 
+export function validateWord(
+  word: string,
+  letterPool: readonly string[],
+  dictionary: ReadonlySet<string>,
+): boolean {
+  const isBuildable = canBuildWordFromLetters(word, letterPool)
+  const isDictionaryWord = dictionary.has(word)
+  console.log(dictionary)
+  console.log(isBuildable, isDictionaryWord)
+  return isBuildable && isDictionaryWord
+}
+
 export function canBuildWordFromLetters(
   word: string,
   letterPool: readonly string[],

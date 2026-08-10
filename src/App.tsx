@@ -1,14 +1,19 @@
 import { useState } from 'react'
-import { generateInitialMeld } from './game/gameEngine'
-import { canBuildWordFromLetters } from './game/gameEngine'
+import { generateInitialMeld, validateWord } from './game/gameEngine'
 import './App.css'
 
-function App() {
+type AppProps = {
+  dictionary: ReadonlySet<string>
+}
+
+function App(props: AppProps) {
+  const dictionary = props.dictionary
+
   const [letters, setLetters] = useState(() => generateInitialMeld())
   const [word, setWord] = useState('')
 
   function handleSubmit() {
-    const isValid = canBuildWordFromLetters(word, letters)
+    const isValid = validateWord(word, letters, dictionary)
     console.log(isValid)
   }
 
@@ -37,7 +42,7 @@ function App() {
           value={word}
           onChange={(event) => {
             const lettersOnly = event.target.value
-              .replace(/[^a-z]/gi, '') // Only allows for letters to be typed in the
+              .replace(/[^a-z]/gi, '') // Only allows for letters to be typed in the field
               .toUpperCase()
             setWord(lettersOnly)
           }}
