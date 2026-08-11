@@ -12,7 +12,6 @@ function App(props: AppProps) {
   const [gameState, setGameState] = useState<GameState>(() => ({
     letterPool: generateInitialMeld(),
     playedWords: [],
-    selectedWords: [],
     nextWordId: 0,
     score: 0,
   }))
@@ -26,6 +25,8 @@ function App(props: AppProps) {
     }
 
     const newState = gameEngine.submitWord(gameState, move)
+
+    setSelectedWords([])
 
     if (newState === null) return
 

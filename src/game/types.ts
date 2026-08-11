@@ -5,7 +5,6 @@ export type PlayedWord = {
 export type GameState = {
   letterPool: string[]
   playedWords: PlayedWord[]
-  selectedWords: PlayedWord[]
   nextWordId: number
   score: number
 }
