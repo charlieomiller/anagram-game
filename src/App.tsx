@@ -1,24 +1,46 @@
 import { useState } from 'react'
-import { generateInitialMeld, validateWord } from './game/gameEngine'
+import { generateInitialMeld, type GameEngine } from './game/gameEngine'
+import type { PlayedWord, GameState, PlayerMove } from './game/types'
 import './App.css'
 
 type AppProps = {
-  dictionary: ReadonlySet<string>
+  gameEngine: GameEngine
 }
 
 function App(props: AppProps) {
-  const dictionary = props.dictionary
-
-  const [letters, setLetters] = useState(() => generateInitialMeld())
+  const gameEngine = props.gameEngine
+  const [gameState, setGameState] = useState<GameState>(() => ({
+    letterPool: generateInitialMeld(),
+    playedWords: [],
+    selectedWords: [],
+    nextWordId: 0,
+    score: 0,
+  }))
   const [word, setWord] = useState('')
+  const [selectedWords, setSelectedWords] = useState<PlayedWord[]>([])
 
   function handleSubmit() {
-    const isValid = validateWord(word, letters, dictionary)
-    console.log(isValid)
+    const move: PlayerMove = {
+      word: word,
+      selectedWords: selectedWords,
+    }
+
+    const newState = gameEngine.submitWord(gameState, move)
+
+    if (newState === null) return
+
+    setGameState(newState)
+    setWord('')
   }
 
-  function regenerateInitialMeld() {
-    setLetters(generateInitialMeld())
+  function toggleWordSelection(selectedWord: PlayedWord) {
+    setSelectedWords((currentSelectedWords) => {
+      if (currentSelectedWords.includes(selectedWord)) {
+        return currentSelectedWords.filter((word) => word !== selectedWord)
+      }
+
+      return [...currentSelectedWords, selectedWord]
+    })
   }
 
   return (
@@ -27,11 +49,7 @@ function App(props: AppProps) {
 
       <section>
         <h2>letter pool:</h2>
-        <p>{letters.join(' ')}</p>
-
-        <button type="button" onClick={regenerateInitialMeld}>
-          Restart Jame
-        </button>
+        <p>{gameState.letterPool.join(' ')}</p>
       </section>
 
       <section>
@@ -53,6 +71,26 @@ function App(props: AppProps) {
         <button type="button" onClick={handleSubmit}>
           Submit
         </button>
+      </section>
+      <section>
+        <h2>Played Words</h2>
+
+        {gameState.playedWords.map((playedWord) => {
+          const isSelected = selectedWords.includes(playedWord)
+          return (
+            <button
+              key={playedWord.id}
+              type="button"
+              className={isSelected ? 'played-word selected' : 'played-word'}
+              aria-pressed={isSelected}
+              onClick={() => {
+                toggleWordSelection(playedWord)
+              }}
+            >
+              {playedWord.word}
+            </button>
+          )
+        })}
       </section>
     </main>
   )

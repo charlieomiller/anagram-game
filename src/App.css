@@ -1,0 +1,13 @@
+.played-word {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #888;
+  border-radius: 0.4rem;
+  background: white;
+  cursor: pointer;
+}
+
+.played-word.selected {
+  background: #222;
+  color: white;
+  border-color: #222;
+}

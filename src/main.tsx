@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { createGameEngine } from './game/gameEngine.ts'
 import { loadDictionary } from './game/dictionary'
 import './index.css'
 import App from './App.tsx'
@@ -11,14 +12,14 @@ async function startApp() {
     root.render(<p>Loading Dictionary...</p>)
 
     const dictionary = await loadDictionary()
-
+    const gameEngine = createGameEngine(dictionary)
     root.render(
       <StrictMode>
-        <App dictionary={dictionary} />
+        <App gameEngine={gameEngine} />
       </StrictMode>,
     )
   } catch (error) {
-    root.render(<p>Failed to load game dictionary. Womp.</p>)
+    root.render(<p>Failed to load game engine.</p>)
     console.error(error)
   }
 }
