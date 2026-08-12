@@ -21,7 +21,8 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
   ): MoveResult {
     const word = move.word.trim().toUpperCase() // Incase React fails in cleaning the input
 
-    if (!(word.length >= 3)) return { success: false, reason: 'WORD_TOO_SHORT' } // Temporarily hard coded. Game modifiers/difficulty options will later determine this
+    if (word.length < state.gameRules.minWordLength)
+      return { success: false, reason: 'WORD_TOO_SHORT' }
 
     const selectedWords = state.playedWords.filter((playedWord) =>
       move.selectedWordIds.includes(playedWord.id),
@@ -74,7 +75,9 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     const newLetter = alphabet[randomIndex]
 
     letters.unshift(newLetter)
-    letters.pop()
+    if (letters.length > state.gameRules.maxLetterPoolCapacity) {
+      letters.pop()
+    }
 
     return {
       ...state,
@@ -87,22 +90,6 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     flipTile,
   }
 }
-
-export function generateInitialMeld(): string[] {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  const letters: string[] = []
-
-  for (let index = 0; index < 504; index++) {
-    // Temporarily hard coded. Game modifiers/difficulty options will later determine this
-    const randomIndex = Math.floor(Math.random() * alphabet.length)
-    letters.push(alphabet[randomIndex])
-  }
-
-  return letters
-}
-
-// also seeded, we'll eventually want the passive generation on a timer. it should have a few rules
-// if a letter has been flipped it should be weighted less. just not totally random i juess
 
 export function getRemainingLettersForMove(
   state: Readonly<GameState>,

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { generateInitialMeld, type GameEngine } from './game/gameEngine'
+import { type GameEngine } from './game/gameEngine'
 import type { GameState, PlayerMove } from './game/types'
 import './App.css'
 
@@ -10,7 +10,14 @@ type AppProps = {
 function App(props: AppProps) {
   const gameEngine = props.gameEngine
   const [gameState, setGameState] = useState<GameState>(() => ({
-    letterPool: generateInitialMeld(),
+    gameRules: {
+      tileFlipIntervalMs: 6000,
+      maxLetterPoolCapacity: 10,
+      minWordLength: 3,
+      wordStealIntervalFlips: 10,
+      wordStealPoolCapacity: 3,
+    },
+    letterPool: [],
     playedWords: [],
     nextWordId: 0,
     score: 0,

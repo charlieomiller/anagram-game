@@ -2,7 +2,17 @@ export type PlayedWord = {
   id: number
   word: string
 }
+
+export type GameRules = {
+  tileFlipIntervalMs: number
+  maxLetterPoolCapacity: number
+  minWordLength: number
+  wordStealIntervalFlips: number
+  wordStealPoolCapacity: number
+}
+
 export type GameState = {
+  gameRules: GameRules
   letterPool: readonly string[]
   playedWords: readonly PlayedWord[]
   nextWordId: number
