@@ -13,24 +13,35 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     state: GameState,
     move: Readonly<PlayerMove>,
   ): GameState | null {
-    const remainingLetters = canBuildWordFromLetters(state, move)
-    const isDictionaryWord = dictionary.has(move.word)
-    console.log(remainingLetters, isDictionaryWord, move.word.length >= 3)
+    const word = move.word.trim().toUpperCase() // Incase React fails in cleaning the input
 
-    if (!remainingLetters) return null
+    const remainingLetters = getRemainingLettersForMove(state, {
+      ...move,
+      word: word,
+    })
+    const isDictionaryWord = dictionary.has(word)
+    console.log(remainingLetters, isDictionaryWord, word.length >= 3)
+
+    if (remainingLetters === null) return null
     if (!isDictionaryWord) return null
-    if (!(move.word.length >= 3)) return null // Temporarily hard coded. Game modifiers/difficulty options will later determine this
+    if (!(word.length >= 3)) return null // Temporarily hard coded. Game modifiers/difficulty options will later determine this
 
-    state.letterPool = remainingLetters
-    state.playedWords = state.playedWords.filter(
-      (word) => !move.selectedWords.includes(word),
+    const selectedWordIds = move.selectedWords.map(
+      (selectedWord) => selectedWord.id,
     )
-    state.playedWords.push({ id: state.nextWordId, word: move.word })
 
-    state.nextWordId++
-    console.log(state)
+    const remainingPlayedWords = state.playedWords.filter(
+      (playedWord) => !selectedWordIds.includes(playedWord.id),
+    )
 
-    return state
+    remainingPlayedWords.push({ id: state.nextWordId, word: word })
+
+    return {
+      ...state,
+      letterPool: remainingLetters,
+      playedWords: remainingPlayedWords,
+      nextWordId: state.nextWordId + 1,
+    }
   }
 
   return {
@@ -54,7 +65,7 @@ export function generateInitialMeld(): string[] {
 // also seeded, we'll eventually want the passive generation on a timer. it should have a few rules
 // if a letter has been flipped it should be weighted less. just not totally random i juess
 
-export function canBuildWordFromLetters(
+export function getRemainingLettersForMove(
   state: Readonly<GameState>,
   move: Readonly<PlayerMove>,
 ): string[] | null {
