@@ -3,15 +3,15 @@ export type PlayedWord = {
   word: string
 }
 export type GameState = {
-  letterPool: string[]
-  playedWords: PlayedWord[]
+  letterPool: readonly string[]
+  playedWords: readonly PlayedWord[]
   nextWordId: number
   score: number
 }
 
 export type PlayerMove = {
   word: string
-  selectedWordIds: number[]
+  selectedWordIds: readonly number[]
 }
 
 // Makes use of a discriminated union for straightfoward checks later
@@ -24,6 +24,7 @@ export type MoveResult =
       success: false
       reason:
         | 'WORD_TOO_SHORT'
+        | 'INVALID_SELECTED_WORD'
         | 'WORD_NOT_IN_DICTIONARY'
         | 'WORD_DOES_NOT_USE_ALL_LETTERS_IN_SELECTED_WORDS'
         | 'WORD_DOES_NOT_ADD_ANY_LETTERS_FROM_LETTERPOOL'
@@ -31,7 +32,7 @@ export type MoveResult =
     }
 
 export type LetterUsageResult =
-  | { success: true; remainingLetters: string[] }
+  | { success: true; remainingLetters: readonly string[] }
   | {
       success: false
       reason:

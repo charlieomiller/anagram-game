@@ -16,7 +16,7 @@ export type GameEngine = ReturnType<typeof createGameEngine>
 
 export function createGameEngine(dictionary: ReadonlySet<string>) {
   function submitWord(
-    state: GameState,
+    state: Readonly<GameState>,
     move: Readonly<PlayerMove>,
   ): MoveResult {
     const word = move.word.trim().toUpperCase() // Incase React fails in cleaning the input
@@ -27,13 +27,19 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       move.selectedWordIds.includes(playedWord.id),
     )
 
+    if (selectedWords.length !== move.selectedWordIds.length) {
+      return {
+        success: false,
+        reason: 'INVALID_SELECTED_WORD',
+      }
+    }
+
     const remainingLetters = getRemainingLettersForMove(
       state,
       word,
       selectedWords,
     )
     const isDictionaryWord = dictionary.has(word)
-    console.log(remainingLetters, isDictionaryWord, word.length >= 3)
 
     // Determine it is not of type string[], then ensure it is false. must include the else so typescript knows that remainingLetters is a string[]
     if (remainingLetters.success === false) {
@@ -60,8 +66,25 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     }
   }
 
+  function flipTile(state: Readonly<GameState>): GameState {
+    const letters = [...state.letterPool]
+
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const randomIndex = Math.floor(Math.random() * alphabet.length)
+    const newLetter = alphabet[randomIndex]
+
+    letters.unshift(newLetter)
+    letters.pop()
+
+    return {
+      ...state,
+      letterPool: letters,
+    }
+  }
+
   return {
     submitWord,
+    flipTile,
   }
 }
 
@@ -69,7 +92,7 @@ export function generateInitialMeld(): string[] {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const letters: string[] = []
 
-  for (let index = 0; index < 500; index++) {
+  for (let index = 0; index < 504; index++) {
     // Temporarily hard coded. Game modifiers/difficulty options will later determine this
     const randomIndex = Math.floor(Math.random() * alphabet.length)
     letters.push(alphabet[randomIndex])

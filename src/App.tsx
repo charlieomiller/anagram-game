@@ -24,18 +24,23 @@ function App(props: AppProps) {
       selectedWordIds: selectedWordIds,
     }
 
-    const newState = gameEngine.submitWord(gameState, move)
+    const result = gameEngine.submitWord(gameState, move)
 
     setSelectedWordIds([])
 
-    if (newState.success === false) {
-      console.log(newState.reason)
+    if (result.success === false) {
+      console.log(result.reason)
       return
     }
 
-    setGameState(newState.gameState)
-    console.log(newState)
+    setGameState(result.gameState)
+    console.log(result)
     setWord('')
+  }
+
+  function handleFlip() {
+    const newState = gameEngine.flipTile(gameState)
+    setGameState(newState)
   }
 
   function toggleWordSelection(selectedWordId: number) {
@@ -76,6 +81,9 @@ function App(props: AppProps) {
         <button type="button" onClick={handleSubmit}>
           Submit
         </button>
+        <button type="button" onClick={handleFlip}>
+          Flip
+        </button>
       </section>
       <section>
         <h2>Played Words</h2>
@@ -90,7 +98,6 @@ function App(props: AppProps) {
               aria-pressed={isSelected}
               onClick={() => {
                 toggleWordSelection(playedWord.id)
-                console.log(selectedWordIds)
               }}
             >
               {playedWord.word}

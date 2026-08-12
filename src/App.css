@@ -1,3 +1,7 @@
+* {
+  font-family: monospace;
+}
+
 .played-word {
   padding: 0.5rem 0.75rem;
   border: 1px solid #888;
