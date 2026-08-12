@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { generateInitialMeld, type GameEngine } from './game/gameEngine'
-import type { PlayedWord, GameState, PlayerMove } from './game/types'
+import type { GameState, PlayerMove } from './game/types'
 import './App.css'
 
 type AppProps = {
@@ -16,31 +16,35 @@ function App(props: AppProps) {
     score: 0,
   }))
   const [word, setWord] = useState('')
-  const [selectedWords, setSelectedWords] = useState<PlayedWord[]>([])
+  const [selectedWordIds, setSelectedWordIds] = useState<number[]>([])
 
   function handleSubmit() {
     const move: PlayerMove = {
       word: word,
-      selectedWords: selectedWords,
+      selectedWordIds: selectedWordIds,
     }
 
     const newState = gameEngine.submitWord(gameState, move)
 
-    setSelectedWords([])
+    setSelectedWordIds([])
 
-    if (newState === null) return
+    if (newState.success === false) {
+      console.log(newState.reason)
+      return
+    }
 
-    setGameState(newState)
+    setGameState(newState.gameState)
+    console.log(newState)
     setWord('')
   }
 
-  function toggleWordSelection(selectedWord: PlayedWord) {
-    setSelectedWords((currentSelectedWords) => {
-      if (currentSelectedWords.includes(selectedWord)) {
-        return currentSelectedWords.filter((word) => word !== selectedWord)
+  function toggleWordSelection(selectedWordId: number) {
+    setSelectedWordIds((currentSelectedWordIds) => {
+      if (currentSelectedWordIds.includes(selectedWordId)) {
+        return currentSelectedWordIds.filter((word) => word !== selectedWordId)
       }
 
-      return [...currentSelectedWords, selectedWord]
+      return [...currentSelectedWordIds, selectedWordId]
     })
   }
 
@@ -77,7 +81,7 @@ function App(props: AppProps) {
         <h2>Played Words</h2>
 
         {gameState.playedWords.map((playedWord) => {
-          const isSelected = selectedWords.includes(playedWord)
+          const isSelected = selectedWordIds.includes(playedWord.id)
           return (
             <button
               key={playedWord.id}
@@ -85,7 +89,8 @@ function App(props: AppProps) {
               className={isSelected ? 'played-word selected' : 'played-word'}
               aria-pressed={isSelected}
               onClick={() => {
-                toggleWordSelection(playedWord)
+                toggleWordSelection(playedWord.id)
+                console.log(selectedWordIds)
               }}
             >
               {playedWord.word}

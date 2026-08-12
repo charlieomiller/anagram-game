@@ -1,4 +1,10 @@
-import type { GameState, PlayerMove } from './types'
+import type {
+  PlayedWord,
+  GameState,
+  PlayerMove,
+  MoveResult,
+  LetterUsageResult,
+} from './types'
 // pass in letter pool
 // pass in played word (cleaned before submitted)
 // check if word can be made from letters
@@ -12,35 +18,45 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
   function submitWord(
     state: GameState,
     move: Readonly<PlayerMove>,
-  ): GameState | null {
+  ): MoveResult {
     const word = move.word.trim().toUpperCase() // Incase React fails in cleaning the input
 
-    const remainingLetters = getRemainingLettersForMove(state, {
-      ...move,
-      word: word,
-    })
+    if (!(word.length >= 3)) return { success: false, reason: 'WORD_TOO_SHORT' } // Temporarily hard coded. Game modifiers/difficulty options will later determine this
+
+    const selectedWords = state.playedWords.filter((playedWord) =>
+      move.selectedWordIds.includes(playedWord.id),
+    )
+
+    const remainingLetters = getRemainingLettersForMove(
+      state,
+      word,
+      selectedWords,
+    )
     const isDictionaryWord = dictionary.has(word)
     console.log(remainingLetters, isDictionaryWord, word.length >= 3)
 
-    if (remainingLetters === null) return null
-    if (!isDictionaryWord) return null
-    if (!(word.length >= 3)) return null // Temporarily hard coded. Game modifiers/difficulty options will later determine this
+    // Determine it is not of type string[], then ensure it is false. must include the else so typescript knows that remainingLetters is a string[]
+    if (remainingLetters.success === false) {
+      return remainingLetters
+    }
 
-    const selectedWordIds = move.selectedWords.map(
-      (selectedWord) => selectedWord.id,
-    )
+    if (!isDictionaryWord)
+      return { success: false, reason: 'WORD_NOT_IN_DICTIONARY' }
 
     const remainingPlayedWords = state.playedWords.filter(
-      (playedWord) => !selectedWordIds.includes(playedWord.id),
+      (playedWord) => !move.selectedWordIds.includes(playedWord.id),
     )
 
     remainingPlayedWords.push({ id: state.nextWordId, word: word })
 
     return {
-      ...state,
-      letterPool: remainingLetters,
-      playedWords: remainingPlayedWords,
-      nextWordId: state.nextWordId + 1,
+      success: true,
+      gameState: {
+        ...state,
+        letterPool: remainingLetters.remainingLetters,
+        playedWords: remainingPlayedWords,
+        nextWordId: state.nextWordId + 1,
+      },
     }
   }
 
@@ -67,17 +83,14 @@ export function generateInitialMeld(): string[] {
 
 export function getRemainingLettersForMove(
   state: Readonly<GameState>,
-  move: Readonly<PlayerMove>,
-): string[] | null {
-  if (move.word.length === 0) {
-    return null
-  }
-
+  word: string,
+  selectedWords: readonly PlayedWord[],
+): LetterUsageResult {
   const remainingLetters = [...state.letterPool] // Makes a copy of letterPool
-  const selectedWordLetterPool = []
+  const selectedWordLetterPool: string[] = []
 
-  if (move.selectedWords.length > 0) {
-    for (const selectedWord of move.selectedWords) {
+  if (selectedWords.length > 0) {
+    for (const selectedWord of selectedWords) {
       for (const letter of selectedWord.word) {
         selectedWordLetterPool.push(letter)
       }
@@ -86,28 +99,39 @@ export function getRemainingLettersForMove(
 
   console.log(selectedWordLetterPool)
 
-  const inputLetters = [...move.word]
-  console.log(inputLetters)
+  const remainingInputLetters = [...word]
+  console.log(remainingInputLetters)
 
   // the move.word must contain ALL LETTERS in selectedwordletterpool, and 1 or more in letterpool
-  for (const letter of move.word) {
+  for (const letter of word) {
     if (selectedWordLetterPool.includes(letter)) {
       selectedWordLetterPool.splice(selectedWordLetterPool.indexOf(letter), 1)
-      inputLetters.splice(inputLetters.indexOf(letter), 1)
+      remainingInputLetters.splice(remainingInputLetters.indexOf(letter), 1)
     }
   }
 
-  console.log(inputLetters)
+  console.log(remainingInputLetters)
 
-  if (selectedWordLetterPool.length > 0) return null // Remaining unused letters in the selected words
-  if (inputLetters.length <= 0) return null // Input word does not contain any letters from the central letter pool
+  if (selectedWordLetterPool.length > 0)
+    return {
+      success: false,
+      reason: 'WORD_DOES_NOT_USE_ALL_LETTERS_IN_SELECTED_WORDS',
+    } // Remaining unused letters in the selected words
+  if (remainingInputLetters.length <= 0)
+    return {
+      success: false,
+      reason: 'WORD_DOES_NOT_ADD_ANY_LETTERS_FROM_LETTERPOOL',
+    } // Input word does not contain any letters from the central letter pool
 
-  for (const letter of inputLetters) {
+  for (const letter of remainingInputLetters) {
     if (remainingLetters.includes(letter)) {
       remainingLetters.splice(remainingLetters.indexOf(letter), 1)
     } else {
-      return null // Central letter pool does not contain necessary letter for word
+      return { success: false, reason: 'NEEDED_LETTERS_NOT_IN_LETTERPOOL' } // Central letter pool does not contain necessary letter for word
     }
   }
-  return remainingLetters
+  return {
+    success: true,
+    remainingLetters: remainingLetters,
+  }
 }
