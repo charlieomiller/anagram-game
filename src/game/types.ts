@@ -4,6 +4,7 @@ export type PlayedWord = {
 }
 
 export type GameRules = {
+  totalTileFlipCount: number
   tileFlipIntervalMs: number
   maxLetterPoolCapacity: number
   minWordLength: number
@@ -15,6 +16,8 @@ export type GameState = {
   gameRules: GameRules
   letterPool: readonly string[]
   playedWords: readonly PlayedWord[]
+  stolenWords: readonly PlayedWord[]
+  tileFlipCount: number
   nextWordId: number
   score: number
 }

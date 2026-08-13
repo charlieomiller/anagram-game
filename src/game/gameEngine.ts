@@ -69,19 +69,51 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
 
   function flipTile(state: Readonly<GameState>): GameState {
     const letters = [...state.letterPool]
+    const newTileFlipCount = state.tileFlipCount + 1
 
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    const randomIndex = Math.floor(Math.random() * alphabet.length)
-    const newLetter = alphabet[randomIndex]
+    if (newTileFlipCount > state.gameRules.totalTileFlipCount) {
+      letters.pop()
+      return {
+        ...state,
+        letterPool: letters,
+        tileFlipCount: newTileFlipCount,
+      }
+    }
 
+    // Add new letter and remove oldest if letter pool is at max capacity
+    const newLetter = getRandomLetter()
     letters.unshift(newLetter)
     if (letters.length > state.gameRules.maxLetterPoolCapacity) {
       letters.pop()
     }
 
+    // Take a word from the player and put it in holding every X tile flips
+    if (newTileFlipCount % state.gameRules.wordStealIntervalFlips === 0) {
+      const newPlayedWords = [...state.playedWords]
+      const newStolenWords = [...state.stolenWords]
+
+      const stolenWord = newPlayedWords.pop()
+      // If there were any played words to steal
+      if (stolenWord) {
+        newStolenWords.push(stolenWord)
+        console.log('WORD STEAL')
+      } else {
+        console.log('NO PLAYED WORDS TO STEAL')
+      }
+
+      return {
+        ...state,
+        letterPool: letters,
+        playedWords: newPlayedWords,
+        stolenWords: newStolenWords,
+        tileFlipCount: newTileFlipCount,
+      }
+    }
+
     return {
       ...state,
       letterPool: letters,
+      tileFlipCount: newTileFlipCount,
     }
   }
 
@@ -144,4 +176,12 @@ export function getRemainingLettersForMove(
     success: true,
     remainingLetters: remainingLetters,
   }
+}
+
+// Eventually this will be seeded for testing and weighted for gameplay
+export function getRandomLetter(): string {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const randomIndex = Math.floor(Math.random() * alphabet.length)
+  const letter = alphabet[randomIndex]
+  return letter
 }

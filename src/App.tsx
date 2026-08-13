@@ -11,6 +11,7 @@ function App(props: AppProps) {
   const gameEngine = props.gameEngine
   const [gameState, setGameState] = useState<GameState>(() => ({
     gameRules: {
+      totalTileFlipCount: 15,
       tileFlipIntervalMs: 6000,
       maxLetterPoolCapacity: 10,
       minWordLength: 3,
@@ -19,6 +20,8 @@ function App(props: AppProps) {
     },
     letterPool: [],
     playedWords: [],
+    stolenWords: [],
+    tileFlipCount: 0,
     nextWordId: 0,
     score: 0,
   }))
@@ -108,6 +111,26 @@ function App(props: AppProps) {
               }}
             >
               {playedWord.word}
+            </button>
+          )
+        })}
+      </section>
+      <section>
+        <h2>Stolen Words</h2>
+
+        {gameState.stolenWords.map((stolenWord) => {
+          const isSelected = selectedWordIds.includes(stolenWord.id)
+          return (
+            <button
+              key={stolenWord.id}
+              type="button"
+              className={isSelected ? 'played-word selected' : 'played-word'}
+              aria-pressed={isSelected}
+              onClick={() => {
+                toggleWordSelection(stolenWord.id)
+              }}
+            >
+              {stolenWord.word}
             </button>
           )
         })}
