@@ -21,11 +21,14 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
   ): MoveResult {
     const word = move.word.trim().toUpperCase() // Incase React fails in cleaning the input
 
+    if (word.length === 0) return { success: false, reason: 'NO_WORD_ENTERED' }
+
     if (word.length < state.gameRules.minWordLength)
       return { success: false, reason: 'WORD_TOO_SHORT' }
 
-    const selectedWords = state.playedWords.filter((playedWord) =>
-      move.selectedWordIds.includes(playedWord.id),
+    // All words across Played Words and Stolen Words are selectable
+    const selectedWords = [...state.playedWords, ...state.stolenWords].filter(
+      (playedWord) => move.selectedWordIds.includes(playedWord.id),
     )
 
     if (selectedWords.length !== move.selectedWordIds.length) {
@@ -54,7 +57,11 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       (playedWord) => !move.selectedWordIds.includes(playedWord.id),
     )
 
-    remainingPlayedWords.push({ id: state.nextWordId, word: word })
+    const remainingStolenWords = state.stolenWords.filter(
+      (playedWord) => !move.selectedWordIds.includes(playedWord.id),
+    )
+
+    remainingPlayedWords.unshift({ id: state.nextWordId, word: word })
 
     return {
       success: true,
@@ -62,6 +69,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
         ...state,
         letterPool: remainingLetters.remainingLetters,
         playedWords: remainingPlayedWords,
+        stolenWords: remainingStolenWords,
         nextWordId: state.nextWordId + 1,
       },
     }
@@ -95,7 +103,10 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       const stolenWord = newPlayedWords.pop()
       // If there were any played words to steal
       if (stolenWord) {
-        newStolenWords.push(stolenWord)
+        newStolenWords.unshift(stolenWord)
+        if (newStolenWords.length > state.gameRules.maxWordStealCapacity) {
+          newStolenWords.pop()
+        }
         console.log('WORD STEAL')
       } else {
         console.log('NO PLAYED WORDS TO STEAL')

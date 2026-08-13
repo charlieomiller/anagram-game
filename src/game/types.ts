@@ -36,6 +36,7 @@ export type MoveResult =
   | {
       success: false
       reason:
+        | 'NO_WORD_ENTERED'
         | 'WORD_TOO_SHORT'
         | 'INVALID_SELECTED_WORD'
         | 'WORD_NOT_IN_DICTIONARY'

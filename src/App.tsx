@@ -11,12 +11,12 @@ function App(props: AppProps) {
   const gameEngine = props.gameEngine
   const [gameState, setGameState] = useState<GameState>(() => ({
     gameRules: {
-      totalTileFlipCount: 15,
+      totalTileFlipCount: 100,
       tileFlipIntervalMs: 6000,
       maxLetterPoolCapacity: 10,
       minWordLength: 3,
-      wordStealIntervalFlips: 10,
-      wordStealPoolCapacity: 3,
+      wordStealIntervalFlips: 5,
+      maxWordStealCapacity: 3,
     },
     letterPool: [],
     playedWords: [],
