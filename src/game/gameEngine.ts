@@ -53,13 +53,29 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     if (!isDictionaryWord)
       return { success: false, reason: 'WORD_NOT_IN_DICTIONARY' }
 
+    const selectedWordIds = new Set(move.selectedWordIds)
+
     const remainingPlayedWords = state.playedWords.filter(
-      (playedWord) => !move.selectedWordIds.includes(playedWord.id),
+      (playedWord) => !selectedWordIds.has(playedWord.id),
+    )
+    const removedPlayedWords = state.playedWords.filter((playedWord) =>
+      selectedWordIds.has(playedWord.id),
     )
 
     const remainingStolenWords = state.stolenWords.filter(
-      (playedWord) => !move.selectedWordIds.includes(playedWord.id),
+      (playedWord) => !selectedWordIds.has(playedWord.id),
     )
+
+    let scoreDelta = 0
+    // Remove the score value of any active words that were used in the new word
+    if (removedPlayedWords) {
+      scoreDelta -= calculateWordValues(
+        removedPlayedWords.map((playedWord) => playedWord.word),
+      )
+    }
+
+    // Add the score value of the new word
+    scoreDelta += calculateWordValues([word])
 
     remainingPlayedWords.unshift({ id: state.nextWordId, word: word })
 
@@ -71,6 +87,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
         playedWords: remainingPlayedWords,
         stolenWords: remainingStolenWords,
         nextWordId: state.nextWordId + 1,
+        score: state.score + scoreDelta,
       },
     }
   }
@@ -101,6 +118,9 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       const newStolenWords = [...state.stolenWords]
 
       const stolenWord = newPlayedWords.pop()
+
+      let scoreDelta = 0
+
       // If there were any played words to steal
       if (stolenWord) {
         newStolenWords.unshift(stolenWord)
@@ -108,6 +128,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
           newStolenWords.pop()
         }
         console.log('WORD STEAL')
+        scoreDelta = -calculateWordValues([stolenWord.word])
       } else {
         console.log('NO PLAYED WORDS TO STEAL')
       }
@@ -118,6 +139,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
         playedWords: newPlayedWords,
         stolenWords: newStolenWords,
         tileFlipCount: newTileFlipCount,
+        score: state.score + scoreDelta,
       }
     }
 
@@ -195,4 +217,15 @@ export function getRandomLetter(): string {
   const randomIndex = Math.floor(Math.random() * alphabet.length)
   const letter = alphabet[randomIndex]
   return letter
+}
+
+function calculateWordValues(words: string[]) {
+  let score = 0
+  for (const word of words) {
+    // "GUMMY" should be scored as 1 + 2 + 3 + 4 + 5
+    for (let index = 1; index <= word.length; index++) {
+      score = score + index
+    }
+  }
+  return score
 }

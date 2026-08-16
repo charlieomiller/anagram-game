@@ -9,7 +9,7 @@ export type GameRules = {
   maxLetterPoolCapacity: number
   minWordLength: number
   wordStealIntervalFlips: number
-  wordStealPoolCapacity: number
+  maxWordStealCapacity: number
 }
 
 export type GameState = {
@@ -20,6 +20,7 @@ export type GameState = {
   tileFlipCount: number
   nextWordId: number
   score: number
+  history: readonly GameEvent[]
 }
 
 export type PlayerMove = {
@@ -54,3 +55,29 @@ export type LetterUsageResult =
         | 'WORD_DOES_NOT_ADD_ANY_LETTERS_FROM_LETTERPOOL'
         | 'NEEDED_LETTERS_NOT_IN_LETTERPOOL'
     }
+/*
+export type GameEvent =
+  | {
+      type: 'WORD_PLAYED'
+      playedWord: PlayedWord
+      fromWords: PlayedWord[]
+      pointsDelta: number
+    }
+  | {
+      type: 'TILE_FLIPPED'
+      letter: string
+    }
+  | {
+      type: 'TILE_EXPIRED'
+      letter: string
+    }
+  | {
+      type: 'WORD_STOLEN'
+      playedWord: PlayedWord
+      pointsDelta: number
+    }
+  | {
+      type: 'STOLEN_WORD_EXPIRED'
+      word: PlayedWord
+    }
+*/

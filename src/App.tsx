@@ -24,6 +24,7 @@ function App(props: AppProps) {
     tileFlipCount: 0,
     nextWordId: 0,
     score: 0,
+    history: [],
   }))
   const [word, setWord] = useState('')
   const [selectedWordIds, setSelectedWordIds] = useState<number[]>([])
@@ -68,7 +69,10 @@ function App(props: AppProps) {
       <h1>Anagram Game</h1>
 
       <section>
-        <h2>letter pool:</h2>
+        <h2>
+          remaining letter pool:{' '}
+          {gameState.gameRules.totalTileFlipCount - gameState.tileFlipCount}
+        </h2>
         <p>{gameState.letterPool.join(' ')}</p>
       </section>
 
@@ -94,6 +98,10 @@ function App(props: AppProps) {
         <button type="button" onClick={handleFlip}>
           Flip
         </button>
+      </section>
+      <section>
+        <h2>SCORE</h2>
+        {gameState.score}
       </section>
       <section>
         <h2>Played Words</h2>
