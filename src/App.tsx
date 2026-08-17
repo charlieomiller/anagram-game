@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { type GameEngine } from './game/gameEngine'
-import type { GameState, PlayerMove } from './game/types'
+import type { PlayerMove } from './game/types'
 import './App.css'
 
 type AppProps = {
@@ -9,31 +9,25 @@ type AppProps = {
 
 function App(props: AppProps) {
   const gameEngine = props.gameEngine
-  const [gameState, setGameState] = useState<GameState>(() => ({
-    gameRules: {
-      totalTileFlipCount: 100,
-      tileFlipIntervalMs: 6000,
-      maxLetterPoolCapacity: 10,
-      minWordLength: 3,
-      wordStealIntervalFlips: 5,
-      maxWordStealCapacity: 3,
-      scoringBonuses: {
-        wordsCombinedMult: 1.5,
-        dupeLetterBonusPer: 1,
-        dupeWordBonusPer: 1,
-        reclaimStolenBonus: 1,
-        eightOrLongerBonus: 5,
-        firstWordMult: 1.5,
-      },
+  const rules = {
+    totalTileFlipCount: 100,
+    tileFlipIntervalMs: 6000,
+    maxLetterPoolCapacity: 10,
+    minWordLength: 3,
+    wordStealIntervalFlips: 5,
+    maxWordStealCapacity: 3,
+    scoringBonuses: {
+      wordsCombinedMult: 1.5,
+      dupeLetterBonusPer: 1,
+      dupeWordBonusPer: 1,
+      reclaimStolenBonus: 1,
+      eightOrLongerBonus: 5,
+      firstWordMult: 1.5,
     },
-    letterPool: [],
-    playedWords: [],
-    stolenWords: [],
-    tileFlipCount: 0,
-    nextWordId: 0,
-    score: 0,
-    history: [],
-  }))
+  }
+  const [gameState, setGameState] = useState(() =>
+    gameEngine.createGame(rules, 12345),
+  )
   const [word, setWord] = useState('')
   const [selectedWordIds, setSelectedWordIds] = useState<number[]>([])
 

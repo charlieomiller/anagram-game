@@ -5,6 +5,7 @@ import type {
   MoveResult,
   LetterUsageResult,
   GameEvent,
+  GameRules,
 } from './types'
 // pass in letter pool
 // pass in played word (cleaned before submitted)
@@ -16,6 +17,20 @@ import type {
 export type GameEngine = ReturnType<typeof createGameEngine>
 
 export function createGameEngine(dictionary: ReadonlySet<string>) {
+  function createGame(gameRules: GameRules, seed: number): GameState {
+    return {
+      gameRules,
+      letterPool: [],
+      playedWords: [],
+      stolenWords: [],
+      tileFlipCount: 0,
+      nextWordId: 0,
+      score: 0,
+      history: [],
+      seed: seed,
+      rngState: 0,
+    }
+  }
   function submitWord(
     state: Readonly<GameState>,
     move: Readonly<PlayerMove>,
@@ -206,6 +221,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
   }
 
   return {
+    createGame,
     submitWord,
     flipTile,
   }

@@ -31,6 +31,8 @@ export type GameState = {
   nextWordId: number
   score: number
   history: readonly GameEvent[]
+  seed: number
+  rngState: number
 }
 
 export type PlayerMove = {
