@@ -1,14 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { type GameEngine } from './game/gameEngine'
 import type { PlayerMove } from './game/types'
 import './App.css'
 
 const NORMAL_RULES = {
-  tileFlipIntervalMs: 6000,
-  maxLetterPoolCapacity: 10,
+  tileFlipIntervalMs: 12000,
+  maxLetterPoolCapacity: 8,
   minWordLength: 3,
-  wordStealIntervalFlips: 5,
-  maxWordStealCapacity: 3,
+  wordStealIntervalFlips: 15,
+  maxWordStealCapacity: 2,
   scoringBonuses: {
     wordsCombinedMult: 1.5,
     dupeLetterBonusPer: 1,
@@ -27,11 +27,15 @@ function App(props: AppProps) {
   const gameEngine = props.gameEngine
 
   const [gameState, setGameState] = useState(() =>
-    gameEngine.createGame(NORMAL_RULES, 12345),
+    gameEngine.createGame(NORMAL_RULES, 123455),
   )
 
   const [word, setWord] = useState('')
   const [selectedWordIds, setSelectedWordIds] = useState<number[]>([])
+  const [flipTimerCycle, setFlipTimerCycle] = useState(0)
+  const [timeUntilFlipMs, setTimeUntilFlipMs] = useState(
+    gameState.gameRules.tileFlipIntervalMs,
+  )
 
   function handleSubmit() {
     const move: PlayerMove = {
@@ -53,11 +57,6 @@ function App(props: AppProps) {
     setWord('')
   }
 
-  function handleFlip() {
-    const newState = gameEngine.flipTile(gameState)
-    setGameState(newState)
-  }
-
   function toggleWordSelection(selectedWordId: number) {
     setSelectedWordIds((currentSelectedWordIds) => {
       if (currentSelectedWordIds.includes(selectedWordId)) {
@@ -68,6 +67,37 @@ function App(props: AppProps) {
     })
   }
 
+  // Tile flip timer logic
+  useEffect(() => {
+    const intervalMs = gameState.gameRules.tileFlipIntervalMs
+    const flipTime = Date.now() + intervalMs
+
+    const countdownId = window.setInterval(() => {
+      const remainingMs = Math.max(0, flipTime - Date.now())
+      setTimeUntilFlipMs(remainingMs)
+    }, 100)
+
+    const flipId = window.setTimeout(() => {
+      setGameState((currentGameState) => gameEngine.flipTile(currentGameState))
+
+      setTimeUntilFlipMs(intervalMs)
+      setFlipTimerCycle((currentCycle) => currentCycle + 1)
+    }, intervalMs)
+
+    return () => {
+      window.clearInterval(countdownId)
+      window.clearTimeout(flipId)
+    }
+  }, [gameEngine, gameState.gameRules.tileFlipIntervalMs, flipTimerCycle])
+
+  function handleFlipEarly() {
+    setGameState((currentGameState) => gameEngine.flipTile(currentGameState))
+
+    setFlipTimerCycle((currentCycle) => currentCycle + 1)
+  }
+
+  const secondsUntilFlip = Math.ceil(timeUntilFlipMs / 1000)
+
   return (
     <main>
       <h1>Anagram Game</h1>
@@ -76,7 +106,10 @@ function App(props: AppProps) {
         <h2>remaining letter pool: {gameState.letterBag.length}</h2>
         <p>{gameState.letterPool.join(' ')}</p>
       </section>
-
+      <section>
+        <h2>Next Tile</h2>
+        <p>{secondsUntilFlip}</p>
+      </section>
       <section>
         <h2>Play a Word</h2>
 
@@ -96,8 +129,8 @@ function App(props: AppProps) {
         <button type="button" onClick={handleSubmit}>
           Submit
         </button>
-        <button type="button" onClick={handleFlip}>
-          Flip
+        <button type="button" onClick={handleFlipEarly}>
+          Flip Early
         </button>
       </section>
       <section>
