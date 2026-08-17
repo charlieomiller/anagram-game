@@ -3,31 +3,33 @@ import { type GameEngine } from './game/gameEngine'
 import type { PlayerMove } from './game/types'
 import './App.css'
 
+const NORMAL_RULES = {
+  tileFlipIntervalMs: 6000,
+  maxLetterPoolCapacity: 10,
+  minWordLength: 3,
+  wordStealIntervalFlips: 5,
+  maxWordStealCapacity: 3,
+  scoringBonuses: {
+    wordsCombinedMult: 1.5,
+    dupeLetterBonusPer: 1,
+    dupeWordBonusPer: 1,
+    reclaimStolenBonus: 1,
+    eightOrLongerBonus: 5,
+    firstWordMult: 1.5,
+  },
+}
+
 type AppProps = {
   gameEngine: GameEngine
 }
 
 function App(props: AppProps) {
   const gameEngine = props.gameEngine
-  const rules = {
-    totalTileFlipCount: 100,
-    tileFlipIntervalMs: 6000,
-    maxLetterPoolCapacity: 10,
-    minWordLength: 3,
-    wordStealIntervalFlips: 5,
-    maxWordStealCapacity: 3,
-    scoringBonuses: {
-      wordsCombinedMult: 1.5,
-      dupeLetterBonusPer: 1,
-      dupeWordBonusPer: 1,
-      reclaimStolenBonus: 1,
-      eightOrLongerBonus: 5,
-      firstWordMult: 1.5,
-    },
-  }
+
   const [gameState, setGameState] = useState(() =>
-    gameEngine.createGame(rules, 12345),
+    gameEngine.createGame(NORMAL_RULES, 12345),
   )
+
   const [word, setWord] = useState('')
   const [selectedWordIds, setSelectedWordIds] = useState<number[]>([])
 
@@ -71,10 +73,7 @@ function App(props: AppProps) {
       <h1>Anagram Game</h1>
 
       <section>
-        <h2>
-          remaining letter pool:{' '}
-          {gameState.gameRules.totalTileFlipCount - gameState.tileFlipCount}
-        </h2>
+        <h2>remaining letter pool: {gameState.letterBag.length}</h2>
         <p>{gameState.letterPool.join(' ')}</p>
       </section>
 

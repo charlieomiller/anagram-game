@@ -7,7 +7,8 @@ import type {
   GameEvent,
   GameRules,
 } from './types'
-import { generateNextLetter } from './letterGenerator'
+import { shuffleLetterBag } from './letterBagRandomizer'
+import { LETTER_BAG } from './letterBag'
 // pass in letter pool
 // pass in played word (cleaned before submitted)
 // check if word can be made from letters
@@ -19,8 +20,11 @@ export type GameEngine = ReturnType<typeof createGameEngine>
 
 export function createGameEngine(dictionary: ReadonlySet<string>) {
   function createGame(gameRules: GameRules, seed: number): GameState {
+    console.log(seed)
+    const shuffledLetterBag = shuffleLetterBag(LETTER_BAG, seed)
     return {
       gameRules,
+      letterBag: shuffledLetterBag,
       letterPool: [],
       playedWords: [],
       stolenWords: [],
@@ -29,7 +33,6 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       score: 0,
       history: [],
       seed: seed,
-      rngState: seed,
     }
   }
   function submitWord(
@@ -131,10 +134,13 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
 
   function flipTile(state: Readonly<GameState>): GameState {
     const letters = [...state.letterPool]
+    const newLetterBag = [...state.letterBag]
     const newTileFlipCount = state.tileFlipCount + 1
 
-    // No more tiles to flip, start expiring remaining tiles
-    if (newTileFlipCount > state.gameRules.totalTileFlipCount) {
+    // Remove next letter from the bag
+    const newLetter = newLetterBag.pop()
+    // No more letters in bag, start expiring remaining tiles
+    if (newLetter === undefined) {
       const expiredTile = letters.pop()
       if (expiredTile !== undefined) {
         return {
@@ -154,10 +160,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       return { ...state }
     }
 
-    // Add new letter and remove oldest if letter pool is at max capacity
-    const nextLetterResult = generateNextLetter(letters, state.rngState)
-    const newLetter = nextLetterResult.letter
-
+    // Add new letter to pool
     letters.unshift(newLetter)
 
     const appendHistory: GameEvent[] = []
@@ -206,22 +209,22 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
 
       return {
         ...state,
+        letterBag: newLetterBag,
         letterPool: letters,
         playedWords: newPlayedWords,
         stolenWords: newStolenWords,
         tileFlipCount: newTileFlipCount,
         score: state.score + scoreDelta,
         history: [...state.history, ...appendHistory],
-        rngState: nextLetterResult.nextRngState,
       }
     }
 
     return {
       ...state,
+      letterBag: newLetterBag,
       letterPool: letters,
       tileFlipCount: newTileFlipCount,
       history: [...state.history, ...appendHistory],
-      rngState: nextLetterResult.nextRngState,
     }
   }
 
