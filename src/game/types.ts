@@ -17,7 +17,6 @@ export type ScoringBonuses = {
   wordsCombinedMult: number
   dupeLetterBonusPer: number
   dupeWordBonusPer: number
-  completeTransformMult: number
   reclaimStolenBonus: number
   eightOrLongerBonus: number
   firstWordMult: number
@@ -72,7 +71,7 @@ export type GameEvent =
       type: 'WORD_PLAYED'
       playedWord: PlayedWord
       fromWords: PlayedWord[]
-      pointsDelta: number
+      scoreDelta: number
     }
   | {
       type: 'TILE_FLIPPED'
@@ -84,10 +83,10 @@ export type GameEvent =
     }
   | {
       type: 'WORD_STOLEN'
-      playedWord: PlayedWord
-      pointsDelta: number
+      stolenWord: PlayedWord
+      scoreDelta: number
     }
   | {
       type: 'STOLEN_WORD_EXPIRED'
-      word: PlayedWord
+      expiredWord: PlayedWord
     }

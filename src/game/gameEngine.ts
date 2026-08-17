@@ -4,6 +4,7 @@ import type {
   PlayerMove,
   MoveResult,
   LetterUsageResult,
+  GameEvent,
 } from './types'
 // pass in letter pool
 // pass in played word (cleaned before submitted)
@@ -88,17 +89,26 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       removedStolenWords,
     )
 
-    remainingPlayedWords.unshift({ id: state.nextWordId, word: word })
+    const newPlayedWord = { id: state.nextWordId, word: word }
 
     return {
       success: true,
       gameState: {
         ...state,
         letterPool: remainingLetters.remainingLetters,
-        playedWords: remainingPlayedWords,
+        playedWords: [newPlayedWord, ...remainingPlayedWords],
         stolenWords: remainingStolenWords,
         nextWordId: state.nextWordId + 1,
         score: state.score + scoreDelta,
+        history: [
+          ...state.history,
+          {
+            type: 'WORD_PLAYED',
+            playedWord: newPlayedWord,
+            fromWords: selectedWords,
+            scoreDelta: scoreDelta,
+          },
+        ],
       },
     }
   }
@@ -107,20 +117,40 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     const letters = [...state.letterPool]
     const newTileFlipCount = state.tileFlipCount + 1
 
+    // No more tiles to flip, start expiring remaining tiles
     if (newTileFlipCount > state.gameRules.totalTileFlipCount) {
-      letters.pop()
-      return {
-        ...state,
-        letterPool: letters,
-        tileFlipCount: newTileFlipCount,
+      const expiredTile = letters.pop()
+      if (expiredTile !== undefined) {
+        return {
+          ...state,
+          letterPool: letters,
+          tileFlipCount: newTileFlipCount,
+          history: [
+            ...state.history,
+            {
+              type: 'TILE_EXPIRED',
+              letter: expiredTile,
+            },
+          ],
+        }
       }
+      // If all letters have expired and this is called just return the current state
+      return { ...state }
     }
 
     // Add new letter and remove oldest if letter pool is at max capacity
     const newLetter = getRandomLetter()
     letters.unshift(newLetter)
+
+    const appendHistory: GameEvent[] = []
+    appendHistory.push({ type: 'TILE_FLIPPED', letter: newLetter })
+
+    // Letterpool is full, push out oldest letter for new letter
     if (letters.length > state.gameRules.maxLetterPoolCapacity) {
-      letters.pop()
+      const expiredTile = letters.pop()
+      // Will always be the case.
+      if (expiredTile !== undefined)
+        appendHistory.push({ type: 'TILE_EXPIRED', letter: expiredTile })
     }
 
     // Take a word from the player and put it in holding every X tile flips
@@ -135,8 +165,20 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       // If there were any played words to steal
       if (stolenWord) {
         newStolenWords.unshift(stolenWord)
+        appendHistory.push({
+          type: 'WORD_STOLEN',
+          stolenWord: stolenWord,
+          scoreDelta: scoreDelta,
+        })
+        // If stolen words is full
         if (newStolenWords.length > state.gameRules.maxWordStealCapacity) {
-          newStolenWords.pop()
+          const expiredWord = newStolenWords.pop()
+          // Will always be the case.
+          if (expiredWord !== undefined)
+            appendHistory.push({
+              type: 'STOLEN_WORD_EXPIRED',
+              expiredWord: expiredWord,
+            })
         }
         console.log('WORD STEAL')
         scoreDelta = -calculateWordValues([stolenWord.word])
@@ -151,6 +193,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
         stolenWords: newStolenWords,
         tileFlipCount: newTileFlipCount,
         score: state.score + scoreDelta,
+        history: [...state.history, ...appendHistory],
       }
     }
 
@@ -158,6 +201,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       ...state,
       letterPool: letters,
       tileFlipCount: newTileFlipCount,
+      history: [...state.history, ...appendHistory],
     }
   }
 

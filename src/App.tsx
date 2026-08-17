@@ -21,7 +21,6 @@ function App(props: AppProps) {
         wordsCombinedMult: 1.5,
         dupeLetterBonusPer: 1,
         dupeWordBonusPer: 1,
-        completeTransformMult: 1.5,
         reclaimStolenBonus: 1,
         eightOrLongerBonus: 5,
         firstWordMult: 1.5,
