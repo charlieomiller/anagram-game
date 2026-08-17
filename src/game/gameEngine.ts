@@ -7,6 +7,7 @@ import type {
   GameEvent,
   GameRules,
 } from './types'
+import { generateNextLetter } from './letterGenerator'
 // pass in letter pool
 // pass in played word (cleaned before submitted)
 // check if word can be made from letters
@@ -28,7 +29,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       score: 0,
       history: [],
       seed: seed,
-      rngState: 0,
+      rngState: seed,
     }
   }
   function submitWord(
@@ -154,7 +155,9 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     }
 
     // Add new letter and remove oldest if letter pool is at max capacity
-    const newLetter = getRandomLetter()
+    const nextLetterResult = generateNextLetter(letters, state.rngState)
+    const newLetter = nextLetterResult.letter
+
     letters.unshift(newLetter)
 
     const appendHistory: GameEvent[] = []
@@ -209,6 +212,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
         tileFlipCount: newTileFlipCount,
         score: state.score + scoreDelta,
         history: [...state.history, ...appendHistory],
+        rngState: nextLetterResult.nextRngState,
       }
     }
 
@@ -217,6 +221,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       letterPool: letters,
       tileFlipCount: newTileFlipCount,
       history: [...state.history, ...appendHistory],
+      rngState: nextLetterResult.nextRngState,
     }
   }
 
@@ -280,14 +285,6 @@ export function getRemainingLettersForMove(
     success: true,
     remainingLetters: remainingLetters,
   }
-}
-
-// Eventually this will be seeded for testing and weighted for gameplay
-export function getRandomLetter(): string {
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  const randomIndex = Math.floor(Math.random() * alphabet.length)
-  const letter = alphabet[randomIndex]
-  return letter
 }
 
 function calculateWordValues(words: string[]) {
