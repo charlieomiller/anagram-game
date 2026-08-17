@@ -1,6 +1,6 @@
 export type PlayedWord = {
-  id: number
-  word: string
+  readonly id: number
+  readonly word: string
 }
 
 export type GameRules = {
@@ -10,6 +10,17 @@ export type GameRules = {
   minWordLength: number
   wordStealIntervalFlips: number
   maxWordStealCapacity: number
+  scoringBonuses: ScoringBonuses
+}
+
+export type ScoringBonuses = {
+  wordsCombinedMult: number
+  dupeLetterBonusPer: number
+  dupeWordBonusPer: number
+  completeTransformMult: number
+  reclaimStolenBonus: number
+  eightOrLongerBonus: number
+  firstWordMult: number
 }
 
 export type GameState = {
@@ -55,7 +66,7 @@ export type LetterUsageResult =
         | 'WORD_DOES_NOT_ADD_ANY_LETTERS_FROM_LETTERPOOL'
         | 'NEEDED_LETTERS_NOT_IN_LETTERPOOL'
     }
-/*
+
 export type GameEvent =
   | {
       type: 'WORD_PLAYED'
@@ -80,4 +91,3 @@ export type GameEvent =
       type: 'STOLEN_WORD_EXPIRED'
       word: PlayedWord
     }
-*/

@@ -17,6 +17,15 @@ function App(props: AppProps) {
       minWordLength: 3,
       wordStealIntervalFlips: 5,
       maxWordStealCapacity: 3,
+      scoringBonuses: {
+        wordsCombinedMult: 1.5,
+        dupeLetterBonusPer: 1,
+        dupeWordBonusPer: 1,
+        completeTransformMult: 1.5,
+        reclaimStolenBonus: 1,
+        eightOrLongerBonus: 5,
+        firstWordMult: 1.5,
+      },
     },
     letterPool: [],
     playedWords: [],
@@ -101,7 +110,7 @@ function App(props: AppProps) {
       </section>
       <section>
         <h2>SCORE</h2>
-        {gameState.score}
+        {gameState.score.toFixed(0)}
       </section>
       <section>
         <h2>Played Words</h2>
