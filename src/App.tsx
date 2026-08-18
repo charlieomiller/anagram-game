@@ -27,7 +27,7 @@ function App(props: AppProps) {
   const gameEngine = props.gameEngine
 
   const [gameState, setGameState] = useState(() =>
-    gameEngine.createGame(NORMAL_RULES, 123455),
+    gameEngine.createGame(NORMAL_RULES, 12346),
   )
 
   const [word, setWord] = useState('')
