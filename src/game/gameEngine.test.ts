@@ -72,6 +72,73 @@ describe('createGame', () => {
   })
 })
 
+describe('submitWord', () => {
+  test('plays a valid word using letters in letter pool', () => {
+    const startingGameState = gameEngine.createGame(TEST_RULES, 12345)
+    const gameState: GameState = {
+      ...startingGameState,
+      letterPool: ['C', 'R', 'A', 'T'],
+    }
+
+    const testMove: PlayerMove = { word: 'CAR', selectedWordIds: [] }
+
+    const result = gameEngine.submitWord(gameState, testMove)
+
+    if (result.success === false) {
+      throw new Error(`Expected successful move, got ${result.reason}`)
+    }
+
+    expect(result.gameState.letterPool).toEqual(['T'])
+    expect(result.gameState.playedWords).toEqual([{ id: 0, word: 'CAT' }])
+    expect(result.gameState.nextWordId).toBe(1)
+    expect(result.gameState.score).toBeGreaterThan(0)
+    expect(result.gameState.history.at(-1)).toMatchObject({
+      type: 'WORD_PLAYED',
+      playedWord: { id: 0, word: 'CAT' },
+    })
+  })
+
+  test('rejects an invalid word when letter pool does not contain necessary letters', () => {
+    const startingGameState = gameEngine.createGame(TEST_RULES, 12345)
+    const gameState: GameState = {
+      ...startingGameState,
+      letterPool: ['C', 'X', 'A', 'T'],
+    }
+    const testMove: PlayerMove = { word: 'CAR', selectedWordIds: [] }
+
+    const result = gameEngine.submitWord(gameState, testMove)
+
+    expect(result).toEqual({
+      success: false,
+      reason: 'NEEDED_LETTERS_NOT_IN_LETTERPOOL',
+    })
+  })
+
+  test('does not mutate the input game state when a move fails', () => {
+    const gameBeforeSubmit = gameEngine.createGame(TEST_RULES, 12345)
+    const snapshotBeforeSubmit = structuredClone(gameBeforeSubmit)
+    const testMove: PlayerMove = { word: 'TEST', selectedWordIds: [] }
+
+    gameEngine.submitWord(gameBeforeSubmit, testMove)
+
+    expect(gameBeforeSubmit).toEqual(snapshotBeforeSubmit)
+  })
+
+  test('does not mutate the input game state when a move succeeds', () => {
+    const gameBeforeSubmit: GameState = {
+      ...gameEngine.createGame(TEST_RULES, 12345),
+      letterPool: ['T', 'E', 'S', 'T'],
+    }
+    const snapshotBeforeSubmit = structuredClone(gameBeforeSubmit)
+    const testMove: PlayerMove = { word: 'TEST', selectedWordIds: [] }
+
+    const result = gameEngine.submitWord(gameBeforeSubmit, testMove)
+
+    expect(result.success).toBe(true)
+    expect(gameBeforeSubmit).toEqual(snapshotBeforeSubmit)
+  })
+})
+
 describe('flipTile', () => {
   test('first flip moves one letter from letter bag into letter pool', () => {
     const gameBeforeFlip = gameEngine.createGame(TEST_RULES, 12345)
@@ -99,30 +166,5 @@ describe('flipTile', () => {
     gameEngine.flipTile(gameBeforeFlip)
 
     expect(gameBeforeFlip).toEqual(snapshotBeforeFlip)
-  })
-
-  describe('submitWord', () => {
-    test('does not mutate the input game state when a move fails', () => {
-      const gameBeforeSubmit = gameEngine.createGame(TEST_RULES, 12345)
-      const snapshotBeforeSubmit = structuredClone(gameBeforeSubmit)
-      const testMove: PlayerMove = { word: 'TEST', selectedWordIds: [] }
-
-      gameEngine.submitWord(gameBeforeSubmit, testMove)
-
-      expect(gameBeforeSubmit).toEqual(snapshotBeforeSubmit)
-    })
-  })
-  test('does not mutate the input game state when a move succeeds', () => {
-    const gameBeforeSubmit: GameState = {
-      ...gameEngine.createGame(TEST_RULES, 12345),
-      letterPool: ['T', 'E', 'S', 'T'],
-    }
-    const snapshotBeforeSubmit = structuredClone(gameBeforeSubmit)
-    const testMove: PlayerMove = { word: 'TEST', selectedWordIds: [] }
-
-    const result = gameEngine.submitWord(gameBeforeSubmit, testMove)
-
-    expect(result.success).toBe(true)
-    expect(gameBeforeSubmit).toEqual(snapshotBeforeSubmit)
   })
 })
