@@ -185,6 +185,8 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
 
       // If there were any played words to steal
       if (stolenWord) {
+        console.log('WORD STEAL')
+        scoreDelta = -calculateWordValues([stolenWord.word])
         newStolenWords.unshift(stolenWord)
         appendHistory.push({
           type: 'WORD_STOLEN',
@@ -201,8 +203,6 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
               expiredWord: expiredWord,
             })
         }
-        console.log('WORD STEAL')
-        scoreDelta = -calculateWordValues([stolenWord.word])
       } else {
         console.log('NO PLAYED WORDS TO STEAL')
       }
