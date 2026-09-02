@@ -1,22 +1,14 @@
 import { useEffect, useState } from 'react'
 import { type GameEngine } from './game/gameEngine'
-import type { PlayerMove } from './game/types'
+import type { GameRules, PlayerMove } from './game/types'
 import './App.css'
 
-const NORMAL_RULES = {
+const NORMAL_RULES: GameRules = {
   tileFlipIntervalMs: 12000,
   maxLetterPoolCapacity: 8,
   minWordLength: 3,
   wordStealIntervalFlips: 15,
   maxWordStealCapacity: 2,
-  scoringBonuses: {
-    wordsCombinedMult: 1.5,
-    dupeLetterBonusPer: 1,
-    dupeWordBonusPer: 1,
-    reclaimStolenBonus: 1,
-    eightOrLongerBonus: 5,
-    firstWordMult: 1.5,
-  },
 }
 
 type AppProps = {
@@ -153,6 +145,34 @@ function App(props: AppProps) {
 
         <button type="button" onClick={startGame}>
           Start Game
+        </button>
+      </main>
+    )
+  }
+
+  if (gameState.status === 'finished') {
+    const longestWord = gameState.history
+      .filter((event) => event.type === 'WORD_PLAYED')
+      .reduce((longest, event) => {
+        return event.playedWord.word.length > longest.length
+          ? event.playedWord.word
+          : longest
+      }, '')
+    return (
+      <main className="end-screen">
+        <h1>Game Over</h1>
+
+        <p>Final Score</p>
+        <strong>{gameState.score.toFixed(0)}</strong>
+
+        <p>Words Remaining: {gameState.playedWords.length}</p>
+
+        <p>Longest Word: {longestWord || 'No words played!'}</p>
+
+        <p>Seed: {gameState.seed}</p>
+
+        <button type="button" onClick={startGame}>
+          Play Again
         </button>
       </main>
     )
