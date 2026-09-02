@@ -85,9 +85,6 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
     const remainingStolenWords = state.stolenWords.filter(
       (playedWord) => !selectedWordIds.has(playedWord.id),
     )
-    const removedStolenWords = state.stolenWords.filter((playedWord) =>
-      selectedWordIds.has(playedWord.id),
-    )
 
     let scoreDelta = 0
     // Remove the score value of any active words that were used in the new word
@@ -99,14 +96,6 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
 
     // Add the score value of the new word
     scoreDelta += calculateWordValues([word])
-
-    scoreDelta = applyScoringBonuses(
-      scoreDelta,
-      word,
-      state,
-      move.selectedWordIds,
-      removedStolenWords,
-    )
 
     const newPlayedWord = { id: state.nextWordId, word: word }
 
@@ -299,58 +288,4 @@ function calculateWordValues(words: string[]) {
     }
   }
   return score
-}
-
-function applyScoringBonuses(
-  scoreDelta: number,
-  word: string,
-  gameState: Readonly<GameState>,
-  selectedWordIds: readonly number[],
-  removedStolenWords: readonly PlayedWord[],
-): number {
-  const bonuses = gameState.gameRules.scoringBonuses
-  let newScoreDelta = scoreDelta
-  // Bonuses first
-  // New word contains 4 or more of the same letter
-  const counts: { [key: string]: number } = {}
-  let maxCount = 0
-  for (const char of word) {
-    counts[char] = (counts[char] || 0) + 1
-    if (counts[char] > maxCount) {
-      maxCount = counts[char]
-    }
-  }
-  if (maxCount > 3) {
-    newScoreDelta += (maxCount - 3) * bonuses.dupeLetterBonusPer
-  }
-
-  // New word matches existing words in current word pool
-  const duplicateWordCount = gameState.playedWords.filter(
-    (playedWord) => playedWord.word === word,
-  ).length
-  newScoreDelta += duplicateWordCount * bonuses.dupeWordBonusPer
-
-  // Word was in stolen and has been taken back
-  newScoreDelta += removedStolenWords.length * bonuses.reclaimStolenBonus
-
-  // Word is long (8 letters or longer)
-  if (word.length >= 8) {
-    newScoreDelta += bonuses.eightOrLongerBonus
-  }
-
-  // Then multipliers
-  // 2 or more words selected to make new word
-  if (selectedWordIds.length > 1) {
-    newScoreDelta *= selectedWordIds.length * bonuses.wordsCombinedMult
-  }
-
-  // First word of the game played
-  if (
-    gameState.playedWords.length === 0 &&
-    gameState.stolenWords.length === 0
-  ) {
-    newScoreDelta *= bonuses.firstWordMult
-  }
-
-  return newScoreDelta
 }
