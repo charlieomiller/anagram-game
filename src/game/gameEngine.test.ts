@@ -9,14 +9,6 @@ const TEST_RULES: GameRules = {
   minWordLength: 3,
   wordStealIntervalFlips: 15,
   maxWordStealCapacity: 2,
-  scoringBonuses: {
-    wordsCombinedMult: 1.5,
-    dupeLetterBonusPer: 1,
-    dupeWordBonusPer: 1,
-    reclaimStolenBonus: 1,
-    eightOrLongerBonus: 5,
-    firstWordMult: 1.5,
-  },
 }
 
 const TEST_DICTIONARY = new Set([

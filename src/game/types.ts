@@ -9,16 +9,6 @@ export type GameRules = {
   minWordLength: number
   wordStealIntervalFlips: number
   maxWordStealCapacity: number
-  scoringBonuses: ScoringBonuses
-}
-
-export type ScoringBonuses = {
-  wordsCombinedMult: number
-  dupeLetterBonusPer: number
-  dupeWordBonusPer: number
-  reclaimStolenBonus: number
-  eightOrLongerBonus: number
-  firstWordMult: number
 }
 
 export type GameState = {
