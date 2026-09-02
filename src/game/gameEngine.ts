@@ -33,6 +33,7 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
       score: 0,
       history: [],
       seed: seed,
+      status: 'playing',
     }
   }
   function submitWord(
@@ -143,9 +144,10 @@ export function createGameEngine(dictionary: ReadonlySet<string>) {
               letter: expiredTile,
             },
           ],
+          status: letters.length === 0 ? 'finished' : 'playing',
         }
       }
-      // If all letters have expired and this is called just return the current state
+      // If all letters have expired then the game should already be over
       return { ...state }
     }
 

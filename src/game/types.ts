@@ -1,3 +1,5 @@
+export type GameStatus = 'playing' | 'finished'
+
 export type PlayedWord = {
   readonly id: number
   readonly word: string
@@ -22,6 +24,7 @@ export type GameState = {
   score: number
   history: readonly GameEvent[]
   seed: number
+  status: GameStatus
 }
 
 export type PlayerMove = {

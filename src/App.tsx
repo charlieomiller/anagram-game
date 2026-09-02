@@ -30,12 +30,26 @@ function App(props: AppProps) {
     gameEngine.createGame(NORMAL_RULES, 12346),
   )
 
+  const [hasStarted, setHasStarted] = useState(false)
   const [word, setWord] = useState('')
   const [selectedWordIds, setSelectedWordIds] = useState<number[]>([])
   const [flipTimerCycle, setFlipTimerCycle] = useState(0)
   const [timeUntilFlipMs, setTimeUntilFlipMs] = useState(
     gameState.gameRules.tileFlipIntervalMs,
   )
+
+  function startGame() {
+    // Get seed from date and time
+    const seed = Date.now() >>> 0
+
+    setGameState(gameEngine.createGame(NORMAL_RULES, seed))
+    setWord('')
+    setSelectedWordIds([])
+    setTimeUntilFlipMs(NORMAL_RULES.tileFlipIntervalMs)
+    setFlipTimerCycle((currentCycle) => currentCycle + 1)
+
+    setHasStarted(true)
+  }
 
   function handleSubmit() {
     const move: PlayerMove = {
@@ -69,6 +83,10 @@ function App(props: AppProps) {
 
   // Tile flip timer logic
   useEffect(() => {
+    if (!hasStarted || gameState.status === 'finished') {
+      return
+    }
+
     const intervalMs = gameState.gameRules.tileFlipIntervalMs
     const flipTime = Date.now() + intervalMs
 
@@ -88,7 +106,13 @@ function App(props: AppProps) {
       window.clearInterval(countdownId)
       window.clearTimeout(flipId)
     }
-  }, [gameEngine, gameState.gameRules.tileFlipIntervalMs, flipTimerCycle])
+  }, [
+    gameEngine,
+    gameState.gameRules.tileFlipIntervalMs,
+    gameState.status,
+    flipTimerCycle,
+    hasStarted,
+  ])
 
   function handleFlipEarly() {
     setGameState((currentGameState) => gameEngine.flipTile(currentGameState))
@@ -97,6 +121,42 @@ function App(props: AppProps) {
   }
 
   const secondsUntilFlip = Math.ceil(timeUntilFlipMs / 1000)
+
+  if (!hasStarted) {
+    return (
+      <main className="start-screen">
+        <h1>Anagram Game</h1>
+
+        <p>Create words and modify existing ones from the available tiles.</p>
+
+        <h2>How to Play</h2>
+
+        <ul>
+          <li>Words must be at least 3 letters long.</li>
+          <li>Tiles expire after max capacity is reached</li>
+          <li>
+            Select an existing word to reuse its letters in a larger word.
+          </li>
+          <li>Each new word must use at least one letter from the pool.</li>
+          <li>
+            Multiple words can be selected and combined when making a larger
+            word.
+          </li>
+          <li>Your rightmost word will be stolen periodically.</li>
+          <li>Stolen words can be used to make new words</li>
+          <li>Stolen words expire after max capacity is reached</li>
+          <li>
+            Longer words are worth more points. Each additional letter adds X +
+            1 points.
+          </li>
+        </ul>
+
+        <button type="button" onClick={startGame}>
+          Start Game
+        </button>
+      </main>
+    )
+  }
 
   return (
     <main>
