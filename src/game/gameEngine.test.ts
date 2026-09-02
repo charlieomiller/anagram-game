@@ -255,3 +255,44 @@ describe('flipTile', () => {
     expect(gameBeforeFlip).toEqual(snapshotBeforeFlip)
   })
 })
+
+describe('game lifecycle', () => {
+  test('new game starts in playing status', () => {
+    const game = gameEngine.createGame(TEST_RULES, 12345)
+
+    expect(game.status).toBe('playing')
+  })
+
+  test('game stays in playing status while 1 tile remains in the letter pool', () => {
+    const game = gameEngine.createGame(TEST_RULES, 12345)
+
+    const stateBeforeFlip: GameState = {
+      ...game,
+      letterBag: [],
+      letterPool: ['C', 'M'],
+      status: 'playing',
+    }
+
+    const result = gameEngine.flipTile(stateBeforeFlip)
+
+    expect(result.status).toBe('playing')
+    expect(result.letterPool).toHaveLength(1)
+  })
+
+  test('game finishes when the final letter pool tile expires', () => {
+    const game = gameEngine.createGame(TEST_RULES, 12345)
+
+    const stateBeforeFlip: GameState = {
+      ...game,
+      letterBag: [],
+      letterPool: ['C'],
+      status: 'playing',
+    }
+
+    const result = gameEngine.flipTile(stateBeforeFlip)
+
+    expect(result.status).toBe('finished')
+    expect(result.letterPool).toEqual([])
+    expect(result.letterBag).toEqual([])
+  })
+})
