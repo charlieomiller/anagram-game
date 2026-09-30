@@ -139,8 +139,9 @@ function App(props: AppProps) {
           </li>
           <li>Stolen words expire after the max capacity of 2 is reached</li>
           <li>
-            Longer words are worth more points. Each additional letter adds X +
-            1 points. EX: "car" = 1 + 2 + 3 = 6, "race" = 1 + 2 + 3 + 4 = 10
+            Longer words are worth more points. Each additional letter adds one
+            more point than the previous one. EX: "car" = 1 + 2 + 3 = 6, "race"
+            = 1 + 2 + 3 + 4 = 10
           </li>
         </ul>
 

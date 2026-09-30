@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+# Anagram Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A timed browser word game built with React and TypeScript. Obtain the highest score by building and transforming words from a finite seeded pool of letter tiles before they expire.
 
-Currently, two official plugins are available:
+**[Play Anagram Game](https://charlieomiller.github.io/anagram-game/)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![Gameplay screenshot](docs/gameplay.png)
 
-## React Compiler
+## About
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The game is heavily inspired by the tile based board game _One-Up!_, one of my favorite board games. My main motivation for developing this anagram game was that my family and friends are tired of getting whooped by me in _One-Up!_.
 
-## Expanding the ESLint configuration
+The game's core ruleset is similar, but modified for a better single-player experience.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Words must be at least 3 letters long
+- Tiles expire after the max capacity of 8 is reached
+- Select an existing word to reuse its letters in a larger word
+- Each new word must use at least one letter from the tile pool
+- Multiple words can be selected and combined when making a larger word
+- Your rightmost word will be stolen periodically
+- Stolen words can be used to make new words, returning the lost points to you
+- Stolen words expire after the max capacity of 2 is reached
+- Longer words are worth more points. Each additional letter adds one more point than the previous one. EX: "car" = 1 + 2 + 3 = 6, "race" = 1 + 2 + 3 + 4 = 10
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Seeded, deterministic letter generation
+- Timed letter drawing and expiration
+- Word transformation / combination mechanics
+- Dictionary validation
+- Scoring based on word length
+- Reproducible game seeds
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Tech Stack
+
+- React
+- TypeScript
+- Vite
+- Vitest
+- GitHub Actions
+- GitHub Pages
+
+## Testing and Reliability
+
+- Game logic is separated from React UI to keep core behavior isolated and testable
+- Deterministic seeds make letter sequences reproducible for testing and debugging
+- Vitest covers core engine behavior and game-state transitions
+- GitHub Actions runs tests, linting, and production builds before deployment, preventing failed builds from being published.
+
+## Running Locally
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Testing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm test
 ```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Takeaways/What Could Be Done Better
+
+- Full deterministic replay: The game currently uses deterministic seeds and tracks score history, but fully recording player actions as well would mean the entire game would be reproducible for debugging. This would also allow for undoing/redoing to be easily implemented.
+- Broader regression tests: Current tests focus on core engine mechanics. Additional tests covering edge cases, state invariants, and replay consistency would be more robust.
+- Integrated tutorial: Less focused on the technical side, a tutorial that was integrated into the first play session of the game would greatly benefit the experience of new players. Additional visual feedback on changing score, expiring tiles, and impressive combinations would also improve the overall game feel.
