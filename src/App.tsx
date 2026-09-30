@@ -179,83 +179,130 @@ function App(props: AppProps) {
   }
 
   return (
-    <main>
-      <h1>Anagram Game</h1>
+    <main className="game-screen">
+      <header className="game-header">
+        <h1>Anagram Game</h1>
 
-      <section>
-        <h2>remaining letter pool: {gameState.letterBag.length}</h2>
-        <p>{gameState.letterPool.join(' ')}</p>
+        <div className="score-display">
+          <span>Score</span>
+          <strong>{gameState.score.toFixed(0)}</strong>
+        </div>
+      </header>
+
+      <section className="game-status">
+        <div className="status-item">
+          <span>Tiles Left</span>
+          <strong>{gameState.letterBag.length}</strong>
+        </div>
+
+        <div className="status-item">
+          <span>Next Tile</span>
+          <strong>{secondsUntilFlip}</strong>
+        </div>
       </section>
-      <section>
-        <h2>Next Tile</h2>
-        <p>{secondsUntilFlip}</p>
+
+      <section className="letter-section">
+        <h2>Available Letters</h2>
+
+        <div className="letter-pool">
+          {gameState.letterPool.map((letter, index) => (
+            <span className="letter-tile" key={`${letter}-${index}`}>
+              {letter}
+            </span>
+          ))}
+        </div>
       </section>
-      <section>
+
+      <section className="word-entry">
         <h2>Play a Word</h2>
 
-        <input
-          type="text"
-          value={word}
-          onChange={(event) => {
-            const lettersOnly = event.target.value
-              .replace(/[^a-z]/gi, '') // Only allows for letters to be typed in the field
-              .toUpperCase()
-            setWord(lettersOnly)
+        <form
+          className="word-entry-controls"
+          onSubmit={(event) => {
+            event.preventDefault()
+            handleSubmit()
           }}
-          autoComplete="off"
-          spellCheck={false}
-        />
+        >
+          <input
+            className="word-input"
+            type="text"
+            value={word}
+            onChange={(event) => {
+              const lettersOnly = event.target.value
+                .replace(/[^a-z]/gi, '')
+                .toUpperCase()
 
-        <button type="button" onClick={handleSubmit}>
-          Submit
-        </button>
-        <button type="button" onClick={handleFlipEarly}>
+              setWord(lettersOnly)
+            }}
+            autoComplete="off"
+            spellCheck={false}
+            placeholder="TYPE A WORD"
+          />
+
+          <button className="primary-button" type="submit">
+            Submit
+          </button>
+        </form>
+
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={handleFlipEarly}
+        >
           Flip Early
         </button>
       </section>
-      <section>
-        <h2>SCORE</h2>
-        {gameState.score.toFixed(0)}
-      </section>
-      <section>
+
+      <section className="words-section">
         <h2>Played Words</h2>
 
-        {gameState.playedWords.map((playedWord) => {
-          const isSelected = selectedWordIds.includes(playedWord.id)
-          return (
-            <button
-              key={playedWord.id}
-              type="button"
-              className={isSelected ? 'played-word selected' : 'played-word'}
-              aria-pressed={isSelected}
-              onClick={() => {
-                toggleWordSelection(playedWord.id)
-              }}
-            >
-              {playedWord.word}
-            </button>
-          )
-        })}
+        <div className="word-list">
+          {gameState.playedWords.map((playedWord) => {
+            const isSelected = selectedWordIds.includes(playedWord.id)
+
+            return (
+              <button
+                key={playedWord.id}
+                type="button"
+                className={isSelected ? 'played-word selected' : 'played-word'}
+                aria-pressed={isSelected}
+                onClick={() => {
+                  toggleWordSelection(playedWord.id)
+                }}
+              >
+                {playedWord.word}
+              </button>
+            )
+          })}
+        </div>
       </section>
-      <section>
+
+      <section className="words-section stolen-section">
         <h2>Stolen Words</h2>
 
-        {gameState.stolenWords.map((stolenWord) => {
-          const isSelected = selectedWordIds.includes(stolenWord.id)
-          return (
-            <button
-              key={stolenWord.id}
-              type="button"
-              className={isSelected ? 'played-word selected' : 'played-word'}
-              aria-pressed={isSelected}
-              onClick={() => {
-                toggleWordSelection(stolenWord.id)
-              }}
-            >
-              {stolenWord.word}
-            </button>
-          )
-        })}
+        <div className="word-list">
+          {gameState.stolenWords.map((stolenWord) => {
+            const isSelected = selectedWordIds.includes(stolenWord.id)
+
+            return (
+              <button
+                key={stolenWord.id}
+                type="button"
+                className={
+                  isSelected
+                    ? 'played-word stolen-word selected'
+                    : 'played-word stolen-word'
+                }
+                aria-pressed={isSelected}
+                onClick={() => {
+                  toggleWordSelection(stolenWord.id)
+                }}
+              >
+                {stolenWord.word}
+              </button>
+            )
+          })}
+        </div>
       </section>
     </main>
   )

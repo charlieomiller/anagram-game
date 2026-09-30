@@ -1,0 +1,46 @@
+@font-face {
+  font-family: 'Kazuki Reiwa';
+  src: url('./assets/font/KazukiReiwa - Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Kazuki Reiwa';
+  src: url('./assets/font/KazukiReiwa - Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+
+  background: #f7f1df;
+  color: #183153;
+
+  font-family: 'Kazuki Reiwa', sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}

@@ -1,17 +1,560 @@
-* {
-  font-family: monospace;
+/* ---------- Shared ---------- */
+
+:root {
+  --page: #f7f1df;
+  --surface: #fffdf7;
+
+  --text: #183153;
+  --muted: #64748b;
+  --border: #183153;
+
+  --primary: #4f9d78;
+  --primary-hover: #438768;
+
+  --selected: #f2c96d;
+  --stolen: #e98b73;
+
+  --soft-blue: #dcecf4;
+}
+
+button {
+  color: inherit;
+  cursor: pointer;
+
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease,
+    background-color 100ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+
+  font-size: clamp(2.2rem, 6vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+h2 {
+  margin-bottom: 0.75rem;
+
+  color: var(--muted);
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+
+/* ---------- Buttons ---------- */
+
+.primary-button,
+.secondary-button {
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+
+  padding: 0.65rem 1.25rem;
+
+  font-weight: 700;
+
+  box-shadow: 2px 3px 0 var(--border);
+}
+
+.primary-button {
+  background: var(--primary);
+  color: white;
+}
+
+.primary-button:hover {
+  background: var(--primary-hover);
+}
+
+.secondary-button {
+  background: var(--surface);
+}
+
+.secondary-button:hover {
+  background: #f3efe3;
+}
+
+.primary-button:active,
+.secondary-button:active {
+  transform: translateY(2px);
+
+  box-shadow: 1px 1px 0 var(--border);
+}
+
+
+/* ---------- Start / End Screens ---------- */
+
+.start-screen,
+.end-screen {
+  width: min(100% - 2rem, 36rem);
+  min-height: 100vh;
+
+  margin-inline: auto;
+  padding-block: 3rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.start-screen > *,
+.end-screen > * {
+  width: 100%;
+}
+
+.start-screen > p {
+  margin-bottom: 2rem;
+
+  color: var(--muted);
+
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.start-screen h2 {
+  margin-bottom: 1rem;
+}
+
+.start-screen ul {
+  margin: 0 0 2rem;
+  padding: 1.5rem 1.5rem 1.5rem 2.5rem;
+
+  border: 2px solid var(--border);
+  border-radius: 0.75rem;
+
+  background: var(--surface);
+
+  text-align: left;
+  line-height: 1.55;
+
+  box-shadow: 3px 4px 0 rgba(24, 49, 83, 0.18);
+}
+
+.start-screen li + li {
+  margin-top: 0.4rem;
+}
+
+.start-screen button,
+.end-screen button {
+  align-self: center;
+  width: auto;
+
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+
+  padding: 0.75rem 2rem;
+
+  background: var(--primary);
+  color: white;
+
+  font-weight: 700;
+
+  box-shadow: 2px 3px 0 var(--border);
+
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease,
+    background-color 100ms ease;
+}
+
+.start-screen button:hover,
+.end-screen button:hover {
+  background: var(--primary-hover);
+}
+
+.start-screen button:active,
+.end-screen button:active {
+  transform: translateY(2px);
+
+  box-shadow: 1px 1px 0 var(--border);
+}
+
+.end-screen strong {
+  display: block;
+
+  margin-bottom: 2rem;
+
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.end-screen p {
+  margin-bottom: 0.75rem;
+}
+
+
+/* ---------- Game Layout ---------- */
+
+.game-screen {
+  width: min(100% - 2rem, 46rem);
+
+  margin-inline: auto;
+  padding-block: 2rem 4rem;
+}
+
+.game-header {
+  margin-bottom: 1.5rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.game-header h1 {
+  margin: 0;
+}
+
+.score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.score-display span {
+  color: var(--muted);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.score-display strong {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+
+/* ---------- Status ---------- */
+
+.game-status {
+  margin-bottom: 1rem;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.status-item {
+  padding: 0.8rem 1rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border: 2px solid var(--border);
+  border-radius: 0.6rem;
+
+  background: var(--surface);
+}
+
+.status-item span {
+  color: var(--muted);
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.status-item strong {
+  font-size: 1.25rem;
+}
+
+
+/* ---------- Main Sections ---------- */
+
+.letter-section,
+.word-entry,
+.words-section {
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+
+  border: 2px solid var(--border);
+  border-radius: 0.75rem;
+
+  background: var(--surface);
+
+  box-shadow: 3px 4px 0 rgba(24, 49, 83, 0.18);
+}
+
+
+/* ---------- Letter Pool ---------- */
+
+.letter-pool {
+  min-height: 3.5rem;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.letter-tile {
+  width: 3rem;
+  aspect-ratio: 1;
+
+  display: grid;
+  place-items: center;
+
+  border: 2px solid var(--border);
+  border-radius: 0.4rem;
+
+  background: var(--soft-blue);
+
+  font-size: 1.5rem;
+  font-weight: 700;
+
+  box-shadow: 2px 2px 0 var(--border);
+
+  animation: tile-appear 140ms ease-out;
+}
+
+.letter-tile:hover {
+  transform: translateY(-1px);
+}
+
+@keyframes tile-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* ---------- Word Entry ---------- */
+
+.word-entry-controls {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.word-input {
+  min-width: 0;
+  flex: 1;
+
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+
+  padding: 0.7rem 0.85rem;
+
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+
+  outline: none;
+
+  transition:
+    box-shadow 120ms ease,
+    border-color 120ms ease;
+}
+
+.word-input::placeholder {
+  color: #9aa8b8;
+}
+
+.word-input:focus {
+  box-shadow: 0 0 0 3px rgba(79, 157, 120, 0.25);
+}
+
+.word-entry .secondary-button {
+  margin-top: 0.8rem;
+}
+
+
+/* ---------- Played / Stolen Words ---------- */
+
+.word-list {
+  min-height: 2.5rem;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .played-word {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #888;
-  border-radius: 0.4rem;
-  background: white;
-  cursor: pointer;
+  padding: 0.55rem 0.9rem;
+
+  border: 2px solid var(--border);
+  border-radius: 999px;
+
+  background: var(--surface);
+
+  font-weight: 700;
+
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
+}
+
+.played-word:hover {
+  transform: translateY(-2px);
 }
 
 .played-word.selected {
-  background: #222;
-  color: white;
-  border-color: #222;
+  background: var(--selected);
+
+  transform: translateY(-2px);
+
+  box-shadow: 2px 2px 0 var(--border);
+}
+
+.stolen-section {
+  background: #fff8f3;
+}
+
+.stolen-word {
+  border-style: dashed;
+
+  opacity: 0.75;
+}
+
+.stolen-word:hover {
+  opacity: 1;
+}
+
+.stolen-word.selected {
+  background: var(--stolen);
+
+  opacity: 1;
+}
+
+
+/* ---------- Timer ---------- */
+
+.timer {
+  width: 100%;
+  height: 0.55rem;
+
+  margin-bottom: 1rem;
+
+  overflow: hidden;
+
+  border: 2px solid var(--border);
+  border-radius: 999px;
+
+  background: var(--surface);
+}
+
+.timer__bar {
+  height: 100%;
+
+  background: var(--primary);
+
+  transition: width 100ms linear;
+}
+
+
+/* ---------- Utility / Empty States ---------- */
+
+.word-list:empty::after {
+  content: 'None yet';
+
+  color: var(--muted);
+
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.letter-pool:empty::after {
+  content: 'No letters available';
+
+  color: var(--muted);
+
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 520px) {
+  .game-screen {
+    width: min(100% - 1rem, 46rem);
+
+    padding-top: 1rem;
+  }
+
+  .game-header {
+    align-items: center;
+  }
+
+  .game-status {
+    gap: 0.5rem;
+  }
+
+  .status-item {
+    padding-inline: 0.75rem;
+  }
+
+  .letter-section,
+  .word-entry,
+  .words-section {
+    padding: 1rem;
+  }
+
+  .letter-tile {
+    width: 2.65rem;
+  }
+
+  .word-entry-controls {
+    flex-direction: column;
+  }
+
+  .word-entry-controls .primary-button {
+    width: 100%;
+  }
+
+  .start-screen,
+  .end-screen {
+    width: min(100% - 1.5rem, 36rem);
+  }
+}
+
+
+/* ---------- Reduced Motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+  }
 }
