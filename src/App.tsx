@@ -124,22 +124,23 @@ function App(props: AppProps) {
         <h2>How to Play</h2>
 
         <ul>
-          <li>Words must be at least 3 letters long.</li>
-          <li>Tiles expire after max capacity is reached</li>
-          <li>
-            Select an existing word to reuse its letters in a larger word.
-          </li>
-          <li>Each new word must use at least one letter from the pool.</li>
+          <li>Words must be at least 3 letters long</li>
+          <li>Tiles expire after the max capacity of 8 is reached</li>
+          <li>Select an existing word to reuse its letters in a larger word</li>
+          <li>Each new word must use at least one letter from the tile pool</li>
           <li>
             Multiple words can be selected and combined when making a larger
-            word.
+            word
           </li>
-          <li>Your rightmost word will be stolen periodically.</li>
-          <li>Stolen words can be used to make new words</li>
-          <li>Stolen words expire after max capacity is reached</li>
+          <li>Your rightmost word will be stolen periodically</li>
+          <li>
+            Stolen words can be used to make new words, returning the lost
+            points to you
+          </li>
+          <li>Stolen words expire after the max capacity of 2 is reached</li>
           <li>
             Longer words are worth more points. Each additional letter adds X +
-            1 points.
+            1 points. EX: "car" = 1 + 2 + 3 = 6, "race" = 1 + 2 + 3 + 4 = 10
           </li>
         </ul>
 
